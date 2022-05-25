@@ -1,5 +1,5 @@
 import random
-from termcolor import colored, cprint
+from termcolor import colored
 
 class Body:
 	def __init__(self):

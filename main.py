@@ -1,5 +1,5 @@
 import random, time, os
-from termcolor import colored, cprint
+from termcolor import colored
 from body import Player, Enemy
 
 def gen_enemy_list(n, types=None):
