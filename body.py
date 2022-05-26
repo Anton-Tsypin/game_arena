@@ -12,14 +12,20 @@ class Body:
             return 5 * self.power + random.randint(int(-self.power * 0.2), int(self.power * 0.2))
         if r >= dodge:
             return self.power + random.randint(int(-self.power * 0.2), int(self.power * 0.2))
-        elif r <= 0.1:
+        elif r <= 0.05:
             self.power_change(-round(self.power/20))
         return 0
+
+    def healing(self, opponent):
+        return int(1.5 * (2 * self.attack() + opponent.attack()) / 3)
 
     def get_damage(self, damage): # получение урона
         self.health -= damage
         if self.health < 0:
             self.health = 0
+
+    def get_healing(self, heal):
+        self.health += heal
         if self.health > self.maxhealth:
             self.health = self.maxhealth
                     
@@ -36,19 +42,10 @@ class Enemy(Body):
     def __init__(self, typ, name=''):
         self.typ = typ
         self.name = name
-        types_of_enemies = {'skeleton': {'x': 10, 'y': 15}}
-        if self.typ == 'Skeleton':
-            x, y = 10, 15
-        elif self.typ == 'Goblin':
-            x, y = 15, 25
-        elif self.typ == 'Orc':
-            x, y = 30, 60
-        elif self.typ == 'Ogre':
-            x, y = 60, 90
-        elif self.typ == 'Dragon':
-            x, y = 100, 170
-        elif self.typ == 'Boss':
-            x, y = 200, 400
+        global types_of_enemies
+
+        x = types_of_enemies[self.typ]['x']
+        y = types_of_enemies[self.typ]['y']
 
         self.health = 10 * random.randint(x, y)
         self.power = 2 * random.randint(x, y)
@@ -56,6 +53,18 @@ class Enemy(Body):
 
     def death(self):
         print(f"{self.typ} {self.name} {colored('is defeated!', 'cyan')}")
+
+    def action(self, player):
+        if (self.health/self.maxhealth) < 0.5 and random.random() < 0.5:
+            self_heal = self.healing(player)
+            self.power_change(-round(self.power/100))
+            self.get_healing(self_heal)
+            return f"self restored {colored(self_heal, 'cyan')} health."
+            
+        else:
+            self_damage = self.attack()
+            player.get_damage(self_damage)
+            return f"self deal you {colored(self_damage, 'red')} damage."
 
 
 class Player(Body):
@@ -78,3 +87,12 @@ class Player(Body):
         self.got_maxhealth += defeated_enemy.maxhealth//3
         self.got_power += defeated_enemy.power//3
         self.killed_enemies += 1
+
+types_of_enemies = {
+    'Skeleton': {'x': 10, 'y': 15}, 
+    'Goblin': {'x': 15, 'y': 25}, 
+    'Orc': {'x': 30, 'y': 60}, 
+    'Ogre': {'x': 60, 'y': 90}, 
+    'Dragon': {'x': 100, 'y': 170}, 
+    'Boss': {'x': 200, 'y': 400}
+    } 

@@ -68,10 +68,10 @@ def main():
             actions += [f"You dealt {colored(player_damage, 'green')} damage, "]
             
         elif action in ['d', 'defense']:
-            player_damage = int(2 * (2*player.attack()+enemy.attack())/3)
-            player.get_damage(-player_damage)
+            player_heal = player.healing(enemy)
+            player.get_healing(player_heal)
             player.power_change(-round(player.power/100))
-            actions += [f"You restored {colored(player_damage, 'cyan')} health, "]
+            actions += [f"You restored {colored(player_heal, 'cyan')} health, "]
             
         elif action == 'cheat':
             actions += [colored('Cheater', 'yellow')]
@@ -103,16 +103,7 @@ def main():
             os.system('cls')
             continue
 
-        if enemy.health > 0 and (enemy.health/enemy.maxhealth) <= 0.5 and random.random() <= 0.5:
-            enemy_damage = int(2 * (player.attack() + 2*enemy.attack())/3)
-            enemy.power_change(-round(enemy.power/100))
-            enemy.get_damage(-enemy_damage)
-            actions[-1] += f"enemy restored {colored(enemy_damage, 'cyan')} health."
-            
-        else:
-            enemy_damage = enemy.attack()
-            player.get_damage(enemy_damage)
-            actions[-1] += f"enemy deal you {colored(enemy_damage, 'red')} damage."
+        actions[-1] += enemy.action(player)
             
         os.system('cls')
         
