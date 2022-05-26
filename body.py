@@ -9,7 +9,7 @@ class Body:
         r = random.random()
         if r >= 0.95:
             self.power_change(+round(self.power/20))
-            return 5 * self.power + random.randint(int(-self.power * 0.2), int(self.power * 0.2))
+            return 3 * self.power + random.randint(int(-self.power * 0.2), int(self.power * 0.2))
         if r >= dodge:
             return self.power + random.randint(int(-self.power * 0.2), int(self.power * 0.2))
         elif r <= 0.05:
