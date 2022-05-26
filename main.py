@@ -62,7 +62,10 @@ def main():
             continue
         
         action = input('Your action: ')
-        if action in ['a', 'attack']:
+        if action is '':
+            actions += ["Some nonsense"]
+
+        elif action in ['a', 'attack']:
             player_damage = player.attack(enemy)
             enemy.get_damage(player_damage)
             actions += [f"You dealt {colored(player_damage, 'green')} damage, "]
@@ -90,25 +93,43 @@ def main():
 
         elif action in ['exit', 'quit', '& D:/Python/python.exe d:/Python/Game_arena/main.py']:
             return False
+
+        elif action == ['new', 'new game']:
+            return True
         
-        elif action == 'save':
+        elif action.split()[0] == 'save':
             try:
-                save_data = {'player' : player, 'enemy_list' : enemy_list}
-                with open('save.save', 'wb') as file:
+                save_name = "fast" if len(action.split()) == 1 else action.split()[1]
+                save_data = {'player' : player, 'enemy_list' : enemy_list, 'boss_flag' : boss_flag}
+                with open(f"saves/{save_name}.save", 'wb') as file:
                     pickle.dump(save_data, file)
-                actions += [colored("Сохранение создано", 'yellow')]
+                actions += [colored(f'Сохранение "{save_name}" создано', 'yellow')]
             except:
                 actions += [colored("Не удалось сохранить", 'yellow')]
 
-        elif action == 'load':
+        elif action.split()[0] == 'load':
             try:
-                with open('save.save', 'rb') as file:
+                save_name = "fast" if len(action.split()) == 1 else action.split()[1]
+                with open(f"saves/{save_name}.save", 'rb') as file:
                     save_data = pickle.load(file)
                     player = save_data['player']
                     enemy_list = save_data['enemy_list']
-                actions += [colored("Сохранение загружено", 'yellow')]
+                    boss_flag = save_data['boss_flag']
+                actions = [colored(f'Сохранение "{save_name}" загружено', 'yellow')]
             except:
                 actions += [colored("Не удалось загрузить сохранение", 'yellow')]
+
+        elif action == 'saves':
+            saves = ", ".join(map(lambda name: f'"{name[0:-5]}"', os.listdir("saves/")))
+            actions += [f"Список сохранений: {saves}"]
+
+        elif action.split()[0] in ['del', 'delete']:
+            try:
+                save_name = "fast" if len(action.split()) == 1 else action.split()[1]
+                os.remove(f"saves/{save_name}.save")
+                actions += [colored(f'Сохранение "{save_name}" удалено', 'yellow')]
+            except:
+                actions += [colored("Не удалось удалить сохранение", 'yellow')]
 
         else:
             actions += ["Some nonsense"]
