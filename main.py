@@ -11,7 +11,8 @@ def gen_enemy_list(n, types=None):
         enemy_list += [Enemy(random.choice(types), random.choice(names))]
     return enemy_list
 
-def print_screen(stats, actions):
+def print_screen(stats, actions): # отрисовка текста на экране
+    os.system('cls')
     print(stats, '\n')
     for action in actions:
         print(action)
@@ -50,7 +51,6 @@ def main():
             player.steal_stats(enemy)
             
             time.sleep(2)
-            os.system('cls')
             actions = []
             if not enemy_list:
                 if boss_flag:
@@ -87,8 +87,7 @@ def main():
         elif action in ['s', 'stat']:
             actions += [colored(f"Killed enemies: {str(player.killed_enemies)}, stolen {str(player.got_maxhealth)} health and {str(player.got_power)} power", 'magenta')]
 
-        elif action in ['exit', 'quit']:
-            os.system('cls')
+        elif action in ['exit', 'quit', '& D:/Python/python.exe d:/Python/Game_arena/main.py']:
             return False
         
         else:
@@ -96,8 +95,6 @@ def main():
 
         if action in ['a', 'attack', 'd', 'defense']:
             actions[-1] += enemy.action(player)
-            
-        os.system('cls')
         
     if not (enemy_list or player.is_dead()):
         os.system('cls')
@@ -108,3 +105,4 @@ def main():
 os.system('cls')
 while main():
     os.system('cls')
+os.system('cls')

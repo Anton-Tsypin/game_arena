@@ -49,10 +49,11 @@ class Body:
 
 class Enemy(Body):
     def __init__(self, typ, name=''):
-        self.typ = typ
         self.name = name
+        
+        # начальные характеристики берутся из глобального словаря по типу моба, затем преобразуются
+        self.typ = typ
         global types_of_enemies
-
         x = types_of_enemies[self.typ]['x']
         y = types_of_enemies[self.typ]['y']
 
@@ -60,17 +61,23 @@ class Enemy(Body):
         self.power = 2 * random.randint(x, y)
         self.maxhealth = self.health
 
+        if random.random() < 0.05: # осквернённый противник имеет меньше здоровья, но больше силы
+            self.typ = "Desecrated " + typ
+            r = (random.random()/2)
+            self.get_damage(int(self.maxhealth * r))
+            self.power_change(int(self.power * r))
+
     def death(self):
         print(f"{self.typ} {self.name} {colored('is defeated!', 'cyan')}")
 
-    def action(self, player):
-        if (self.health/self.maxhealth) < 0.5 and random.random() < 0.5:
+    def action(self, player): # действие моба
+        if (self.health/self.maxhealth) < 0.5 and random.random() < 0.5: # шанс лечения при низком здоровье
             self_heal = self.healing(player)
             self.power_change(-round(self.power/100))
             self.get_healing(self_heal)
             return f"self restored {colored(self_heal, 'cyan')} health."
             
-        else:
+        else: # атака
             self_damage = self.attack(player)
             player.get_damage(self_damage)
             return f"self deal you {colored(self_damage, 'red')} damage."
@@ -88,7 +95,7 @@ class Player(Body):
         self.got_power = 0
         return
 
-    def steal_stats(self, defeated_enemy):
+    def steal_stats(self, defeated_enemy): # кража характеристик игроком у поверженного врага
         self.maxhealth += defeated_enemy.maxhealth // 3
         self.get_healing(defeated_enemy.maxhealth // 3 * 2)
         self.power_change(defeated_enemy.power // 3)
@@ -97,6 +104,7 @@ class Player(Body):
         self.got_power += defeated_enemy.power//3
         self.killed_enemies += 1
 
+# словарь характеристик мобов по их типу
 types_of_enemies = {
     'Skeleton': {'x': 10, 'y': 15}, 
     'Goblin': {'x': 15, 'y': 25}, 
