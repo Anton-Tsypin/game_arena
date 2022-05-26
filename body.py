@@ -80,9 +80,9 @@ class Player(Body):
         return
 
     def steal_stats(self, defeated_enemy):
-        self.maxhealth += defeated_enemy.maxhealth//3
-        self.get_damage(-2*defeated_enemy.maxhealth//3)
-        self.power_change(defeated_enemy.power//3)
+        self.maxhealth += defeated_enemy.maxhealth // 3
+        self.get_healing(defeated_enemy.maxhealth // 3 * 2)
+        self.power_change(defeated_enemy.power // 3)
         
         self.got_maxhealth += defeated_enemy.maxhealth//3
         self.got_power += defeated_enemy.power//3
