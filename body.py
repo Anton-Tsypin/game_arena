@@ -5,26 +5,35 @@ class Body:
     def __init__(self):
         pass
 
-    def attack(self, dodge=0.1): # определение нанесённого урона
+    def attack(self, opponent, dodge=0.1): # определение нанесённого урона
         r = random.random()
-        if r >= 0.95:
-            self.power_change(+round(self.power/20))
-            return 3 * self.power + random.randint(int(-self.power * 0.2), int(self.power * 0.2))
-        if r >= dodge:
-            return self.power + random.randint(int(-self.power * 0.2), int(self.power * 0.2))
-        elif r <= 0.05:
-            self.power_change(-round(self.power/20))
-        return 0
+        standart_damage = random.randint(int(self.power * 0.8), int(self.power * 1.2))
+        damage = 0
+        
+        if r >= 0.95: # крит
+            self.power_change(self.power//20)
+            critical_damage = standart_damage * 2
+            critical_damage = int(opponent.maxhealth * 0.5) if critical_damage > int(opponent.maxhealth * 0.5) else critical_damage
+            damage = standart_damage + critical_damage
+            
+        if r >= dodge: # обычный удар
+            damage =  standart_damage
 
-    def healing(self, opponent):
-        return int(1.5 * (2 * self.attack() + opponent.attack()) / 3)
+        elif r <= 0.05: # очень неудачный удар
+            self.power_change(-self.power//20)
+
+        return damage
+
+    def healing(self, opponent): # определение полученного лечения
+        heal = int(1.5 * (2 * self.attack(opponent) + opponent.attack(self)) / 3)
+        return heal
 
     def get_damage(self, damage): # получение урона
         self.health -= damage
         if self.health < 0:
             self.health = 0
 
-    def get_healing(self, heal):
+    def get_healing(self, heal): # получение лечения
         self.health += heal
         if self.health > self.maxhealth:
             self.health = self.maxhealth
@@ -34,7 +43,7 @@ class Body:
         if self.power < self.maxhealth//10:
             self.power = self.maxhealth//10
 
-    def is_dead(self):
+    def is_dead(self): # проверка на смерть
         return self.health <= 0
 
 
@@ -62,7 +71,7 @@ class Enemy(Body):
             return f"self restored {colored(self_heal, 'cyan')} health."
             
         else:
-            self_damage = self.attack()
+            self_damage = self.attack(player)
             player.get_damage(self_damage)
             return f"self deal you {colored(self_damage, 'red')} damage."
 

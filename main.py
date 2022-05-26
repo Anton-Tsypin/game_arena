@@ -62,7 +62,7 @@ def main():
         
         action = input('Your action: ')
         if action in ['a', 'attack']:
-            player_damage = player.attack()
+            player_damage = player.attack(enemy)
             enemy.get_damage(player_damage)
             actions += [f"You dealt {colored(player_damage, 'green')} damage, "]
             
