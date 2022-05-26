@@ -1,4 +1,5 @@
 import random, time, os
+import pickle
 from termcolor import colored
 from body import Player, Enemy
 
@@ -90,6 +91,25 @@ def main():
         elif action in ['exit', 'quit', '& D:/Python/python.exe d:/Python/Game_arena/main.py']:
             return False
         
+        elif action == 'save':
+            try:
+                save_data = {'player' : player, 'enemy_list' : enemy_list}
+                with open('save.save', 'wb') as file:
+                    pickle.dump(save_data, file)
+                actions += [colored("Сохранение создано", 'yellow')]
+            except:
+                actions += [colored("Не удалось сохранить", 'yellow')]
+
+        elif action == 'load':
+            try:
+                with open('save.save', 'rb') as file:
+                    save_data = pickle.load(file)
+                    player = save_data['player']
+                    enemy_list = save_data['enemy_list']
+                actions += [colored("Сохранение загружено", 'yellow')]
+            except:
+                actions += [colored("Не удалось загрузить сохранение", 'yellow')]
+
         else:
             actions += ["Some nonsense"]
 
