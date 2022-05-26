@@ -17,7 +17,6 @@ def print_screen(stats, actions):
         print(action)
 
 def main():
-    os.system('cls')
     print('Your task is to defeat all monsters and stay alive, good luck!')
     print('To attack press a, to defend press d\n')
     player = Player(input('Enter your name, hero: '))
@@ -78,21 +77,15 @@ def main():
             player.maxhealth += 10000
             player.health += 10000
             player.power += 1000
-            os.system('cls')
-            continue
 
         elif action == 'death':
             player.health = 0
-            os.system('cls')
-            continue
 
         elif action == 'win':
             break
         
         elif action in ['s', 'stat']:
             actions += [colored(f"Killed enemies: {str(player.killed_enemies)}, stolen {str(player.got_maxhealth)} health and {str(player.got_power)} power", 'magenta')]
-            os.system('cls')
-            continue
 
         elif action in ['exit', 'quit']:
             os.system('cls')
@@ -100,19 +93,18 @@ def main():
         
         else:
             actions += ["Some nonsense"]
-            os.system('cls')
-            continue
 
-        actions[-1] += enemy.action(player)
+        if action in ['a', 'attack', 'd', 'defense']:
+            actions[-1] += enemy.action(player)
             
         os.system('cls')
         
     if not (enemy_list or player.is_dead()):
-        time.sleep(1)
         os.system('cls')
         print(colored('\n\n\tYou win!', 'cyan'))
     time.sleep(4)
     return True
 
+os.system('cls')
 while main():
     os.system('cls')
