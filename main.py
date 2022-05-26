@@ -94,11 +94,12 @@ def main():
         elif action in ['exit', 'quit', '& D:/Python/python.exe d:/Python/Game_arena/main.py']:
             return False
 
-        elif action == ['new', 'new game']:
+        elif action in ['new', 'new game']:
             return True
         
         elif action.split()[0] == 'save':
             try:
+                if not os.path.exists('saves'): os.makedirs('saves') 
                 save_name = "fast" if len(action.split()) == 1 else action.split()[1]
                 save_data = {'player' : player, 'enemy_list' : enemy_list, 'boss_flag' : boss_flag}
                 with open(f"saves/{save_name}.save", 'wb') as file:
