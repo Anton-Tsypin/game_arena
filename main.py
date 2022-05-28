@@ -39,41 +39,12 @@ class Game:
         self.actions = []
         self.boss_flag = True
         
-        time.sleep(1)
         os.system('cls')
         while self.enemy_list and self.fight_run_flag:
             self.enemy = self.enemy_list[0]
             self.print_screen()
             if len(self.actions) > 16:
                 self.actions.pop(0)
-
-            if self.player.is_dead():
-                time.sleep(1)
-                os.system('cls')
-                print(f"{colored('You died', 'red')}, you can {colored('load a save', 'cyan')} or {colored('die with dignity', 'yellow')}")
-                action = Action(input('Your choice: '))
-                if action.action[0:4] == "load":
-                    message = action.do(self)
-                    self.actions += message
-                    continue
-                else:
-                    break
-            
-            if self.enemy.is_dead():
-                self.enemy.death()
-                self.enemy_list.pop(0)
-                
-                self.player.steal_stats(self.enemy)
-                
-                time.sleep(2)
-                self.actions = []
-                if not self.enemy_list:
-                    if self.boss_flag:
-                        self.boss_flag = False
-                        self.enemy = Enemy('Boss', f"Mirror of {self.player.name}")
-                        self.enemy_list += [self.enemy]
-                        self.enemy.health, self.enemy.maxhealth, self.enemy.power = self.player.health, self.player.maxhealth, self.player.power
-                continue
             
             action = Action(input('Your action: '))
             message = action.do(self)

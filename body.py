@@ -63,24 +63,24 @@ class Enemy(Body):
 
         if random.random() < 0.05: # осквернённый противник имеет меньше здоровья, но больше силы
             self.typ = "Desecrated " + typ
-            r = (random.random()/2)
+            r = (random.random()/2) + 0.1
             self.get_damage(int(self.maxhealth * r))
             self.power_change(int(self.power * r))
 
     def death(self):
-        print(f"{self.typ} {self.name} {colored('is defeated!', 'cyan')}")
+        return f"{self.typ} {self.name} {colored('is defeated!', 'cyan')}"
 
     def action(self, player): # действие моба
         if (self.health/self.maxhealth) < 0.5 and random.random() < 0.5: # шанс лечения при низком здоровье
             self_heal = self.healing(player)
             self.power_change(-round(self.power/100))
             self.get_healing(self_heal)
-            return f"self restored {colored(self_heal, 'cyan')} health."
+            return f" Enemy restored {colored(self_heal, 'cyan')} health."
             
         else: # атака
             self_damage = self.attack(player)
             player.get_damage(self_damage)
-            return f"self deal you {colored(self_damage, 'red')} damage."
+            return f" Enemy deal you {colored(self_damage, 'red')} damage."
 
 
 class Player(Body):

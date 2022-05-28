@@ -1,5 +1,6 @@
 from termcolor import colored
-import pickle, os
+import pickle, os, time
+from body import Enemy
 
 class Action:
     def __init__(self, action):
@@ -79,6 +80,7 @@ class Action:
                 game.boss_flag = save_data['boss_flag']
             message = [colored(f'Сохранение "{save_name}" загружено', 'yellow')]
             game.actions = []
+            game.print_screen()
         except:
             message = [colored("Не удалось загрузить сохранение", 'yellow')]
         finally:
@@ -100,13 +102,44 @@ class Action:
         if self.action in ['a', 'attack']:
             game.player_damage = game.player.attack(game.enemy)
             game.enemy.get_damage(game.player_damage)
-            message = [f"You dealt {colored(game.player_damage, 'green')} damage, "]
+            message = [f"You dealt {colored(game.player_damage, 'green')} damage."]                        
 
         elif self.action in ['d', 'defense']:
             game.player_heal = game.player.healing(game.enemy)
             game.player.get_healing(game.player_heal)
             game.player.power_change(-round(game.player.power/100))
-            message = [f"You restored {colored(game.player_heal, 'cyan')} health, "]
+            message = [f"You restored {colored(game.player_heal, 'cyan')} health."]
 
+        if game.enemy.is_dead():
+            game.print_screen()
+            print(message[0])
+            print(game.enemy.death())
+            game.enemy_list.pop(0)
+            
+            game.player.steal_stats(game.enemy)
+            
+            time.sleep(2)
+            game.actions = []
+            if not game.enemy_list:
+                if game.boss_flag:
+                    game.boss_flag = False
+                    game.enemy = Enemy('Boss', f"Mirror of {game.player.name}")
+                    game.enemy_list += [game.enemy]
+                    game.enemy.health, game.enemy.maxhealth, game.enemy.power = game.player.health, game.player.maxhealth, game.player.power
+                    
         message[0] += game.enemy.action(game.player)
+
+        if game.player.is_dead():
+            game.print_screen()
+            print(message[0])
+            time.sleep(2)
+            os.system('cls')
+            print(f"{colored('You died', 'red')}, you can {colored('load', 'cyan')} a save or die with {colored('dignity', 'yellow')}")
+            action = Action(input('Your choice: '))
+            if action.action[0:4] == "load":
+                message = action.do(game)
+            else:
+                game.fight_run_flag = False
+            game.actions = []
+                    
         return message
