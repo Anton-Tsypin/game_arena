@@ -11,18 +11,7 @@ class Action:
             message = ['Some nonsense']
 
         elif self.action in ['a', 'attack', 'd', 'defense']:
-            if self.action in ['a', 'attack']:
-                game.player_damage = game.player.attack(game.enemy)
-                game.enemy.get_damage(game.player_damage)
-                message = [f"You dealt {colored(game.player_damage, 'green')} damage, "]
-
-            elif self.action in ['d', 'defense']:
-                game.player_heal = game.player.healing(game.enemy)
-                game.player.get_healing(game.player_heal)
-                game.player.power_change(-round(game.player.power/100))
-                message = [f"You restored {colored(game.player_heal, 'cyan')} health, "]
-
-            message[0] += game.enemy.action(game.player)
+            message = self.fight_action(game)
 
         elif self.action == 'cheat':
             game.player.maxhealth += 10000
@@ -51,38 +40,73 @@ class Action:
             game.fight_run_flag = False
 
         elif self.action.split()[0] == 'save':
-            try:
-                if not os.path.exists('saves'): os.makedirs('saves') 
-                save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
-                save_data = {'player' : game.player, 'enemy_list' : game.enemy_list, 'boss_flag' : game.boss_flag}
-                with open(f"saves/{save_name}.save", 'wb') as file:
-                    pickle.dump(save_data, file)
-                message = [colored(f'Сохранение "{save_name}" создано', 'yellow')]
-            except:
-                message = [colored("Не удалось сохранить", 'yellow')]
+            message = self.save(game)
 
         elif self.action.split()[0] == 'load':
-            try:
-                save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
-                with open(f"saves/{save_name}.save", 'rb') as file:
-                    save_data = pickle.load(file)
-                    game.player = save_data['player']
-                    game.enemy_list = save_data['enemy_list']
-                    game.boss_flag = save_data['boss_flag']
-                message = [colored(f'Сохранение "{save_name}" загружено', 'yellow')]
-            except:
-                message = [colored("Не удалось загрузить сохранение", 'yellow')]
-
-        elif self.action == 'saves':
-            saves = ", ".join(map(lambda name: f'"{name[0:-5]}"', os.listdir("saves/")))
-            message = [f"Список сохранений: {saves}"]
+            message = self.load(game)
 
         elif self.action.split()[0] in ['del', 'delete']:
-            try:
-                save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
-                os.remove(f"saves/{save_name}.save")
-                message = [colored(f'Сохранение "{save_name}" удалено', 'yellow')]
-            except:
-                message = [colored("Не удалось удалить сохранение", 'yellow')]
+            message = self.delete()
 
+        elif self.action == 'saves':
+            saves = ", ".join(map(lambda name: f'{name[0:-5]}', os.listdir("saves/")))
+            message = [f"Список сохранений: [{saves}]"]
+
+        return message
+
+
+    def save(self, game): # сохранение прогресса
+        try:
+            if not os.path.exists('saves'): os.makedirs('saves') 
+            save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
+            save_data = {'player' : game.player, 'enemy_list' : game.enemy_list, 'boss_flag' : game.boss_flag}
+            with open(f"saves/{save_name}.save", 'wb') as file:
+                pickle.dump(save_data, file)
+            message = [colored(f'Сохранение "{save_name}" создано', 'yellow')]
+        except:
+            message = [colored("Не удалось сохранить", 'yellow')]
+        finally:
+            return message
+
+
+    def load(self, game): # загрузка сохранения
+        try:
+            save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
+            with open(f"saves/{save_name}.save", 'rb') as file:
+                save_data = pickle.load(file)
+                game.player = save_data['player']
+                game.enemy_list = save_data['enemy_list']
+                game.boss_flag = save_data['boss_flag']
+            message = [colored(f'Сохранение "{save_name}" загружено', 'yellow')]
+            game.actions = []
+        except:
+            message = [colored("Не удалось загрузить сохранение", 'yellow')]
+        finally:
+            return message
+
+
+    def delete(self): # удаление сохранения
+        try:
+            save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
+            os.remove(f"saves/{save_name}.save")
+            message = [colored(f'Сохранение "{save_name}" удалено', 'yellow')]
+        except:
+            message = [colored("Не удалось удалить сохранение", 'yellow')]
+        finally:
+            return message
+
+
+    def fight_action(self, game): # действие в бою
+        if self.action in ['a', 'attack']:
+            game.player_damage = game.player.attack(game.enemy)
+            game.enemy.get_damage(game.player_damage)
+            message = [f"You dealt {colored(game.player_damage, 'green')} damage, "]
+
+        elif self.action in ['d', 'defense']:
+            game.player_heal = game.player.healing(game.enemy)
+            game.player.get_healing(game.player_heal)
+            game.player.power_change(-round(game.player.power/100))
+            message = [f"You restored {colored(game.player_heal, 'cyan')} health, "]
+
+        message[0] += game.enemy.action(game.player)
         return message

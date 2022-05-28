@@ -20,10 +20,13 @@ class Game:
             enemy_list += [Enemy(random.choice(types), random.choice(names))]
         return enemy_list
 
-    def print_screen(self, stats, actions): # отрисовка текста на экране
+    def print_screen(self): # отрисовка текста на экране
         os.system('cls')
+        en_hl, en_mhl, en_pw = colored(str(self.enemy.health), 'red'),  colored(str(self.enemy.maxhealth), 'red'), colored(self.enemy.power, 'yellow')
+        pl_hl, pl_mhl, pl_pw = colored(str(self.player.health), 'green'), colored(str(self.player.maxhealth), 'green'), colored(self.player.power, 'yellow')
+        stats = f"{self.enemy.typ} {self.enemy.name} have {en_hl}/{en_mhl} health and {en_pw} power \nYou have {pl_hl}/{pl_mhl} health and {pl_pw} power"
         print(stats, '\n')
-        for action in actions:
+        for action in self.actions:
             print(action)
 
     def main(self):
@@ -33,25 +36,28 @@ class Game:
         self.enemy_list = self.gen_enemy_list(5, types=['Skeleton', 'Goblin', 'Orc'])
         self.enemy_list += self.gen_enemy_list(5, types=['Goblin', 'Orc', 'Ogre'])
         self.enemy_list += self.gen_enemy_list(5, types=['Orc', 'Ogre', 'Dragon'])
-        actions = []
+        self.actions = []
         self.boss_flag = True
         
         time.sleep(1)
         os.system('cls')
         while self.enemy_list and self.fight_run_flag:
             self.enemy = self.enemy_list[0]
-            en_hl, en_mhl, en_pw = colored(str(self.enemy.health), 'red'),  colored(str(self.enemy.maxhealth), 'red'), colored(self.enemy.power, 'yellow')
-            pl_hl, pl_mhl, pl_pw = colored(str(self.player.health), 'green'), colored(str(self.player.maxhealth), 'green'), colored(self.player.power, 'yellow')
-            stats = f"{self.enemy.typ} {self.enemy.name} have {en_hl}/{en_mhl} health and {en_pw} power \nYou have {pl_hl}/{pl_mhl} health and {pl_pw} power"
-            self.print_screen(stats, actions)
-            if len(actions) > 16:
-                actions.pop(0)
+            self.print_screen()
+            if len(self.actions) > 16:
+                self.actions.pop(0)
 
             if self.player.is_dead():
+                time.sleep(1)
                 os.system('cls')
-                print(colored('\n\n\tYou died', 'red'))
-                time.sleep(4)
-                break
+                print(f"{colored('You died', 'red')}, you can {colored('load a save', 'cyan')} or {colored('die with dignity', 'yellow')}")
+                action = Action(input('Your choice: '))
+                if action.action[0:4] == "load":
+                    message = action.do(self)
+                    self.actions += message
+                    continue
+                else:
+                    break
             
             if self.enemy.is_dead():
                 self.enemy.death()
@@ -60,7 +66,7 @@ class Game:
                 self.player.steal_stats(self.enemy)
                 
                 time.sleep(2)
-                actions = []
+                self.actions = []
                 if not self.enemy_list:
                     if self.boss_flag:
                         self.boss_flag = False
@@ -71,9 +77,10 @@ class Game:
             
             action = Action(input('Your action: '))
             message = action.do(self)
-            actions += message
+            self.actions += message
             
         if not (self.enemy_list or self.player.is_dead()):
+            time.sleep(1)
             os.system('cls')
             print(colored('\n\n\tYou win!', 'cyan'))
             time.sleep(4)
