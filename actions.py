@@ -2,40 +2,67 @@ from termcolor import colored
 import pickle, os, time
 from body import Enemy
 
+
 class Action:
     def __init__(self, action):
         self.action = action
 
-    def do(self, game):
+
+    def do(self, game, situation):
         message = ['Some nonsense']
         if self.action == '':
             message = ['Some nonsense']
 
-        elif self.action in ['a', 'attack', 'd', 'defense']:
-            message = self.fight_action(game)
+        if situation == 'hub':
+            if self.action == 'fight':
+                print(f"Choose a location for a fighting run: {game.aviable_locations}")
+                location = input()
+                while not location in game.aviable_locations:
+                    print("You are mistaken. Try again.")
+                    location = input()
+                game.location = location
+                game.hub_flag = False
 
-        elif self.action == 'cheat':
-            game.player.maxhealth += 10000
-            game.player.health += 10000
-            game.player.power += 1000
-            message = [colored('Cheater', 'yellow')]
+            elif self.action == 'altar':
+                message = ["You donate all the accumulated life energy to the sacrificial altar.\nThe gods liked your sacrifice, but it's not enough"]
+                count = (game.player.life_energy * 4) // 5
+                game.player.life_energy = 0
+                game.player.default_health += count
+                game.player.health = game.player.default_health
+                game.player.default_power += count // 4
+                game.player.power = game.player.default_power
 
-        elif self.action == 'death':
-            message = [(colored('Death.', 'red'))]
-            game.player.health = 0
+        if situation == 'fight':
+            if self.action in ['a', 'attack', 'd', 'defense']:
+                message = self.fight_action(game)
 
-        elif self.action == 'win':
-            message = ["Победа!"]
-            game.enemy_list = []
-            game.fight_run_flag = False
-        
-        elif self.action in ['s', 'stat']:
-            message = [colored(f"Killed enemies: {str(game.player.killed_enemies)}, stolen {str(game.player.got_maxhealth)} health and {str(game.player.got_power)} power", 'magenta')]
+            elif self.action == 'cheat':
+                game.player.maxhealth += 10000
+                game.player.health += 10000
+                game.player.power += 1000
+                message = [colored('Cheater', 'yellow')]
+
+            elif self.action == 'death':
+                message = [(colored('Death.', 'red'))]
+                game.player.health = 0
+
+            elif self.action == 'win':
+                message = ["Победа!"]
+                game.enemy_list = []
+                game.fight_run_flag = False
+            
+            elif self.action in ['s', 'stat']:
+                message = [colored(f"Killed enemies: {str(game.player.killed_enemies)}, stolen {str(game.player.got_maxhealth)} health and {str(game.player.got_power)} power", 'magenta')]
+
+
+        if self.action == '':
+            message = ['Some nonsense']
 
         elif self.action in ['exit', 'quit', '& D:/Python/python.exe d:/Python/Game_arena/main.py']:
             game.main_game_flag = False
             game.fight_run_flag = False
-            message = "Вы вышли из игры"
+            game.hub_flag = False
+            message = ["Вы вышли из игры"]
 
         elif self.action in ['new', 'new game']:
             game.fight_run_flag = False
@@ -120,13 +147,14 @@ class Action:
             
             time.sleep(2)
             game.actions = []
-            if not game.enemy_list:
+            return
+            if False and not game.enemy_list:
                 if game.boss_flag:
                     game.boss_flag = False
                     game.enemy = Enemy('Boss', f"Mirror of {game.player.name}")
                     game.enemy_list += [game.enemy]
                     game.enemy.health, game.enemy.maxhealth, game.enemy.power = game.player.health, game.player.maxhealth, game.player.power
-                    
+
         message[0] += game.enemy.action(game.player)
 
         if game.player.is_dead():
@@ -139,7 +167,9 @@ class Action:
             if action.action[0:4] == "load":
                 message = action.do(game)
             else:
+                game.continuation = False
                 game.fight_run_flag = False
+                game.main_game_flag = False
             game.actions = []
                     
         return message
