@@ -169,7 +169,7 @@ class Action:
             print(message[0])
             time.sleep(2)
             os.system('cls')
-            print(f"{colored('You died', 'red')}, you can {colored('load', 'cyan')} a save or die with {colored('dignity', 'yellow')}")
+            print(f"{colored('You are defeated', 'red')}, you can {colored('load', 'cyan')} a save, start {colored('new', 'green')} game or {colored('die', 'yellow')} with dignity")
             attempts = 0
             while attempts < 3:
                 attempts += 1
@@ -177,6 +177,10 @@ class Action:
                 if action.action[0:4] == "load":
                     message = action.do(game)
                     break
+                elif action in ['new', 'new game', 'start new game']:
+                    self.exit(game, True)
+                elif action in ['die', 'exit', 'quit', 'dignity', 'die with dignity']:
+                    self.exit(game, False)
             else:
                 self.exit(game, True)
             game.actions = []
