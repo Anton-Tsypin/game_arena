@@ -8,7 +8,7 @@ class Action:
         self.action = action
 
 
-    def do(self, game, situation):
+    def do(self, game, situation=None):
         message = ['Some nonsense']
         if self.action == '':
             message = ['Some nonsense']
@@ -28,7 +28,7 @@ class Action:
                 count = (game.player.life_energy * 4) // 5
                 game.player.life_energy = 0
                 game.player.default_health += count
-                game.player.health = game.player.default_health
+                game.player.maxhealth = game.player.health = game.player.default_health
                 game.player.default_power += count // 4
                 game.player.power = game.player.default_power
 
@@ -50,22 +50,16 @@ class Action:
                 message = ["Победа!"]
                 game.enemy_list = []
                 game.fight_run_flag = False
-            
-            elif self.action in ['s', 'stat']:
-                message = [colored(f"Killed enemies: {str(game.player.killed_enemies)}, stolen {str(game.player.got_maxhealth)} health and {str(game.player.got_power)} power", 'magenta')]
 
 
         if self.action == '':
             message = ['Some nonsense']
 
         elif self.action in ['exit', 'quit', '& D:/Python/python.exe d:/Python/Game_arena/main.py']:
-            game.main_game_flag = False
-            game.fight_run_flag = False
-            game.hub_flag = False
-            message = ["Вы вышли из игры"]
+            self.exit(game, True)
 
         elif self.action in ['new', 'new game']:
-            game.fight_run_flag = False
+            self.exit(game, False)
 
         elif self.action.split()[0] == 'save':
             message = self.save(game)
@@ -80,6 +74,9 @@ class Action:
             saves = ", ".join(map(lambda name: f'{name[0:-5]}', os.listdir("saves/")))
             message = [f"Список сохранений: [{saves}]"]
 
+        elif self.action in ['s', 'stat']:
+            message = [colored(f"Killed enemies: {str(game.player.killed_enemies)}, stolen {str(game.player.got_maxhealth)} health and {str(game.player.got_power)} power", 'magenta')]
+
         return message
 
 
@@ -87,7 +84,14 @@ class Action:
         try:
             if not os.path.exists('saves'): os.makedirs('saves') 
             save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
-            save_data = {'player' : game.player, 'enemy_list' : game.enemy_list, 'boss_flag' : game.boss_flag}
+            save_data = {
+                'player' : game.player, 
+                'enemy_list' : game.enemy_list, 
+                'fight_run_flag' : game.fight_run_flag,
+                'hub_flag' : game.hub_flag, 
+                'boss_flag' : game.boss_flag,
+                'location' : game.location
+                }
             with open(f"saves/{save_name}.save", 'wb') as file:
                 pickle.dump(save_data, file)
             message = [colored(f'Сохранение "{save_name}" создано', 'yellow')]
@@ -105,6 +109,9 @@ class Action:
                 game.player = save_data['player']
                 game.enemy_list = save_data['enemy_list']
                 game.boss_flag = save_data['boss_flag']
+                game.fight_run_flag = save_data['fight_run_flag']
+                game.hub_flag = save_data['hub_flag'] 
+                game.location = save_data['location']
             message = [colored(f'Сохранение "{save_name}" загружено', 'yellow')]
             game.actions = []
             game.print_screen()
@@ -169,11 +176,16 @@ class Action:
                 action = Action(input('Your choice: '))
                 if action.action[0:4] == "load":
                     message = action.do(game)
-                break
+                    break
             else:
-                game.continuation = False
-                game.fight_run_flag = False
-                game.main_game_flag = False
+                self.exit(game, True)
             game.actions = []
                     
         return message
+
+
+    def exit(self, game, break_cycle=True):
+        game.main_game_flag = False
+        game.fight_run_flag = False
+        game.hub_flag = False
+        game.cycle = not break_cycle

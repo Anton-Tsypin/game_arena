@@ -101,11 +101,20 @@ class Game:
         print('To attack press a, to defend press d\n')
         self.player.name = input('Enter your name, hero: ')
         os.system('cls')
-
+        self.cycle = True
+        self.fight_run_flag = True
 
         while self.main_game_flag:
-            if self.fight_run(self.location):
+            if self.fight_run_flag:
+                self.fight_run(self.location)
+                self.fight_run_flag = False
+                self.hub_flag = True
+            elif self.hub_flag:
                 self.hub()
+                self.fight_run_flag = True
+                self.hub_flag = False
+
+        return self.cycle
         
 
 
