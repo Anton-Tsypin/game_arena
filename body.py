@@ -76,7 +76,7 @@ class Enemy(Body):
         self.life_energy = 1 + self.health // 100 + self.power // 20
 
         if random.random() < 0.05: # осквернённый противник имеет меньше здоровья, но больше силы
-            self.typ = "Desecrated " + typ
+            self.typ = f"{colored('Desecrated', 'magenta')} {typ}"
             r = (random.random()/2) + 0.1
             self.get_damage(int(self.maxhealth * r))
             self.power_change(int(self.power * r))

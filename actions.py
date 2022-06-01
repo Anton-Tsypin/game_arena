@@ -58,7 +58,7 @@ class Action:
         elif self.action in ['exit', 'quit', '& D:/Python/python.exe d:/Python/Game_arena/main.py']:
             self.exit(game, True)
 
-        elif self.action in ['new', 'new game']:
+        elif self.action in ['new', 'new game', 'start new game']:
             self.exit(game, False)
 
         elif self.action.split()[0] == 'save':
@@ -177,10 +177,12 @@ class Action:
                 if action.action[0:4] == "load":
                     message = action.do(game)
                     break
-                elif action in ['new', 'new game', 'start new game']:
-                    self.exit(game, True)
-                elif action in ['die', 'exit', 'quit', 'dignity', 'die with dignity']:
+                elif action.action in ['new', 'new game', 'start new game']:
                     self.exit(game, False)
+                    break
+                elif action.action in ['die', 'exit', 'quit', 'dignity', 'die with dignity']:
+                    self.exit(game, True)
+                    break
             else:
                 self.exit(game, True)
             game.actions = []
