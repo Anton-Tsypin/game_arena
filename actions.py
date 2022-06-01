@@ -174,6 +174,6 @@ class Action:
                 game.continuation = False
                 game.fight_run_flag = False
                 game.main_game_flag = False
-        game.actions = []
+            game.actions = []
                     
         return message
