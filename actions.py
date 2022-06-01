@@ -148,7 +148,7 @@ class Action:
             time.sleep(2)
             game.actions = []
             return
-            if False and not game.enemy_list:
+            if not game.enemy_list and game.player.killed_enemies >= 20:
                 if game.boss_flag:
                     game.boss_flag = False
                     game.enemy = Enemy('Boss', f"Mirror of {game.player.name}")
@@ -163,13 +163,17 @@ class Action:
             time.sleep(2)
             os.system('cls')
             print(f"{colored('You died', 'red')}, you can {colored('load', 'cyan')} a save or die with {colored('dignity', 'yellow')}")
-            action = Action(input('Your choice: '))
-            if action.action[0:4] == "load":
-                message = action.do(game)
+            attempts = 0
+            while attempts < 3:
+                attempts += 1
+                action = Action(input('Your choice: '))
+                if action.action[0:4] == "load":
+                    message = action.do(game)
+                break
             else:
                 game.continuation = False
                 game.fight_run_flag = False
                 game.main_game_flag = False
-            game.actions = []
+        game.actions = []
                     
         return message
