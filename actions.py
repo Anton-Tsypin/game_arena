@@ -14,13 +14,14 @@ class Action:
             message = ['Some nonsense']
 
         if situation == 'hub':
+            av_loc = ', '.join([f"{i+1}) {game.aviable_locations[i]}" for i in range(len(game.aviable_locations))])
             if self.action == 'fight':
-                print(f"Choose a location for a fighting run: {game.aviable_locations}")
-                location = input()
-                while not location in game.aviable_locations:
+                print(f"Choose number of a location for a fighting run: \n{av_loc}")
+                choice = int(input())-1
+                while not (choice >= 0 and choice < len(game.aviable_locations)):
                     print("You are mistaken. Try again.")
-                    location = input()
-                game.location = location
+                    choice = int(input())-1
+                game.location = game.aviable_locations[choice]
                 game.hub_flag = False
 
             elif self.action == 'altar':
