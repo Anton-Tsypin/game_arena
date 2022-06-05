@@ -92,7 +92,7 @@ class Action:
             if not os.path.exists('saves'): os.makedirs('saves') 
             save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
 
-            if save_name in os.listdir("saves/"): mes = "updated"
+            if f"{save_name}.save" in os.listdir("saves/"): mes = "updated"
             else: mes = "created"
         
             save_data = {
