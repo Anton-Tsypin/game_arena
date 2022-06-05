@@ -79,7 +79,7 @@ class Action:
 
         elif self.action == 'saves':
             saves = ", ".join(map(lambda name: f'{name[0:-5]}', os.listdir("saves/")))
-            message = [f"Список сохранений: [{saves}]"]
+            message = [f"Save list: [{saves}]"]
 
         elif self.action in ['s', 'stat']:
             message = [colored(f"Killed enemies: {str(game.player.killed_enemies)}, stolen {str(game.player.got_maxhealth)} health and {str(game.player.got_power)} power", 'magenta')]
@@ -91,6 +91,10 @@ class Action:
         try:
             if not os.path.exists('saves'): os.makedirs('saves') 
             save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
+
+            if save_name in os.listdir("saves/"): mes = "updated"
+            else: mes = "created"
+        
             save_data = {
                 'player' : game.player, 
                 'enemy_list' : game.enemy_list, 
@@ -100,9 +104,9 @@ class Action:
                 }
             with open(f"saves/{save_name}.save", 'wb') as file:
                 pickle.dump(save_data, file)
-            message = [colored(f'Сохранение "{save_name}" создано', 'yellow')]
+            message = [colored(f'Save "{save_name}" {mes}', 'yellow')]
         except:
-            message = [colored("Не удалось сохранить", 'yellow')]
+            message = [colored("Failed to save", 'red')]
         finally:
             return message
 
@@ -117,11 +121,11 @@ class Action:
                 game.boss_flag = save_data['boss_flag']
                 game.place = save_data['place']
                 game.location = save_data['location']
-            message = [colored(f'Сохранение "{save_name}" загружено', 'yellow')]
+            message = [colored(f'Save "{save_name}" loaded', 'yellow')]
             game.actions = []
             game.print_screen()
         except:
-            message = [colored("Не удалось загрузить сохранение", 'yellow')]
+            message = [colored("Failed to load save", 'red')]
         finally:
             return message
 
@@ -130,9 +134,9 @@ class Action:
         try:
             save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
             os.remove(f"saves/{save_name}.save")
-            message = [colored(f'Сохранение "{save_name}" удалено', 'yellow')]
+            message = [colored(f'Save "{save_name}" deleted', 'yellow')]
         except:
-            message = [colored("Не удалось удалить сохранение", 'yellow')]
+            message = [colored("Failed to delete save", 'red')]
         finally:
             return message
 
