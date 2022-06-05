@@ -128,6 +128,11 @@ class Player(Body):
         self.killed_enemies += 1
 
 
+    def set_default_stats(self):
+        self.maxhealth = self.default_health
+        self.health = self.default_health
+        self.power = self.default_power
+
 
 # словарь характеристик мобов по их типу
 types_of_enemies = {

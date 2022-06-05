@@ -7,12 +7,12 @@ from actions import Action
 class Game:
     def __init__(self):
         self.player = Player()
-        self.fight_run_flag = False
+        self.boss_flag = True
         self.main_game_flag = True
         self.hub_flag = False
-        self.continuation = None
         self.enemy = None
-        self.location = "Forest"
+        self.place = None
+        self.location = None
         self.aviable_locations = ["Forest", "Greenskin caves", "Mountains"]
         self.enemy_list = []
 
@@ -63,36 +63,29 @@ class Game:
         self.enemy_list = enemy_list
         self.actions = []
         self.boss_flag = True
-        self.fight_run_flag = True
-        self.continuation = True
-        while self.enemy_list and self.fight_run_flag:
+        while self.enemy_list and self.place == "fight":
             self.enemy = self.enemy_list[0]
             self.print_screen()
             if len(self.actions) > 16:
                 self.actions.pop(0)
             
             action = Action(input('Your action: '))
-            message = action.do(self, 'fight')
+            message = action.do(self)
             if message:
                 self.actions += message
-
-        return self.continuation
 
 
     def hub(self):
         self.location = 'Forgotten city'
+        self.player.set_default_stats()
         self.actions = []
-        self.player.maxhealth = self.player.default_health
-        self.player.health = self.player.default_health
-        self.player.power = self.player.default_power
-        self.hub_flag = True
 
-        while self.hub_flag:
+        while self.place == "hub":
             self.print_screen()
             if len(self.actions) > 16:
                 self.actions.pop(0)
             action = Action(input("Your action: "))
-            message = action.do(self, 'hub')
+            message = action.do(self)
             self.actions += message
         
 
@@ -102,17 +95,16 @@ class Game:
         self.player.name = input('Enter your name, hero: ')
         os.system('cls')
         self.cycle = True
-        self.fight_run_flag = True
+        self.place = "fight"
+        self.location = "Forest"
 
         while self.main_game_flag:
-            if self.fight_run_flag:
+            if self.place == "fight":
                 self.fight_run(self.location)
-                self.fight_run_flag = False
-                self.hub_flag = True
-            elif self.hub_flag:
+                self.place = "hub"
+            elif self.place == "hub":
                 self.hub()
-                self.fight_run_flag = True
-                self.hub_flag = False
+                self.place = "fight"
 
         return self.cycle
         

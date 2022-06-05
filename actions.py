@@ -8,21 +8,27 @@ class Action:
         self.action = action
 
 
-    def do(self, game, situation=None):
+    def do(self, game):
         message = ['Some nonsense']
         if self.action == '':
             message = ['Some nonsense']
 
-        if situation == 'hub':
+        if game.place == 'hub':
             av_loc = ', '.join([f"{i+1}) {game.aviable_locations[i]}" for i in range(len(game.aviable_locations))])
             if self.action == 'fight':
                 print(f"Choose number of a location for a fighting run: \n{av_loc}")
-                choice = int(input())-1
+                choice = input()
+                while not choice.isnumeric():
+                    choice = input()
+                choice = int(choice)-1
                 while not (choice >= 0 and choice < len(game.aviable_locations)):
                     print("You are mistaken. Try again.")
-                    choice = int(input())-1
+                    choice = input()
+                    while not choice.isnumeric():
+                        choice = input()
+                    choice = int(choice)-1
                 game.location = game.aviable_locations[choice]
-                game.hub_flag = False
+                game.place = "fight"
 
             elif self.action == 'altar':
                 message = ["You donate all the accumulated life energy to the sacrificial altar.\nThe gods liked your sacrifice, but it's not enough"]
@@ -33,7 +39,7 @@ class Action:
                 game.player.default_power += count // 4
                 game.player.power = game.player.default_power
 
-        if situation == 'fight':
+        elif game.place == 'fight':
             if self.action in ['a', 'attack', 'd', 'defense']:
                 message = self.fight_action(game)
 
@@ -88,9 +94,8 @@ class Action:
             save_data = {
                 'player' : game.player, 
                 'enemy_list' : game.enemy_list, 
-                'fight_run_flag' : game.fight_run_flag,
-                'hub_flag' : game.hub_flag, 
                 'boss_flag' : game.boss_flag,
+                'place' : game.place,
                 'location' : game.location
                 }
             with open(f"saves/{save_name}.save", 'wb') as file:
@@ -110,8 +115,7 @@ class Action:
                 game.player = save_data['player']
                 game.enemy_list = save_data['enemy_list']
                 game.boss_flag = save_data['boss_flag']
-                game.fight_run_flag = save_data['fight_run_flag']
-                game.hub_flag = save_data['hub_flag'] 
+                game.place = save_data['place']
                 game.location = save_data['location']
             message = [colored(f'Сохранение "{save_name}" загружено', 'yellow')]
             game.actions = []
@@ -193,6 +197,5 @@ class Action:
 
     def exit(self, game, break_cycle=True):
         game.main_game_flag = False
-        game.fight_run_flag = False
-        game.hub_flag = False
+        game.place = None
         game.cycle = not break_cycle
