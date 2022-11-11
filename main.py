@@ -1,5 +1,5 @@
 import random, time, os
-from termcolor import colored
+from modules.termcolor import colored
 from body import Player, Enemy
 from actions import Action
 

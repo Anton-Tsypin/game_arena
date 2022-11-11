@@ -1,4 +1,4 @@
-from termcolor import colored
+from modules.termcolor import colored
 import pickle, os, time
 from body import Enemy
 
