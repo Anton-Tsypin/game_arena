@@ -78,6 +78,7 @@ class Action:
             message = self.delete()
 
         elif self.action == 'saves':
+            if not os.path.exists('saves'): os.makedirs('saves') 
             saves = ", ".join(map(lambda name: f'{name[0:-5]}', os.listdir("saves/")))
             message = [f"Save list: [{saves}]"]
 
@@ -113,6 +114,7 @@ class Action:
 
     def load(self, game): # загрузка сохранения
         try:
+            if not os.path.exists('saves'): os.makedirs('saves') 
             save_name = "fast" if len(self.action.split()) == 1 else self.action.split()[1]
             with open(f"saves/{save_name}.save", 'rb') as file:
                 save_data = pickle.load(file)
